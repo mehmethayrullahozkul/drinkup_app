@@ -1,4 +1,4 @@
-#Wed Jul 12 17:48:48 TRT 2023
-base.0=C\:\\Users\\hayru\\Desktop\\Codes\\Flutter\\learningthehardway\\Pr-04-LoginApp\\login_app\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+#Mon Jan 29 16:15:26 TRT 2024
+base.0=C\:\\Users\\hayru\\Desktop\\Codes\\Flutter\\learningthehardway\\Pr-04-LoginApp\\drinkup-app\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
