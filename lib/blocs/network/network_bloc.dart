@@ -13,7 +13,7 @@ class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
   StreamSubscription? _network_listener_subscription;
   var hasInternetAccess = false;
 
-  NetworkBloc._() : super(NetworkState.unknown()) {
+  NetworkBloc._() : super(const NetworkState.unknown()) {
     on<NetworkStatusChange>(_onNetworkStatusChanged);
 
     _network_listener_subscription = Connectivity()
@@ -25,12 +25,12 @@ class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
         hasInternetAccess = await InternetConnectionChecker().hasConnection;
         if (hasInternetAccess) {
           print("Internet access: found");
-          NetworkBloc().add(NetworkStatusChange(isConnected: true));
+          NetworkBloc().add(const NetworkStatusChange(isConnected: true));
         } else {
-          NetworkBloc().add(NetworkStatusChange(isConnected: false));
+          NetworkBloc().add(const NetworkStatusChange(isConnected: false));
         }
       } else {
-        NetworkBloc().add(NetworkStatusChange(isConnected: false));
+        NetworkBloc().add(const NetworkStatusChange(isConnected: false));
       }
     });
   }

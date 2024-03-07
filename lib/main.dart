@@ -1,21 +1,25 @@
+import 'package:drinkup_app/blocs/config/config_bloc.dart';
 import 'package:drinkup_app/blocs/network/network_bloc.dart';
-import 'package:drinkup_app/login/login_page.dart';
-import 'package:drinkup_app/screens/menu/main_menu.dart';
+import 'package:drinkup_app/blocs/user/user.dart';
+import 'package:drinkup_app/repositories/data/data_repository.dart';
+import 'package:drinkup_app/services/config/config_service.dart';
+import 'package:drinkup_app/services/size/size_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'blocs/auth/auth.dart';
 import 'package:go_router/go_router.dart';
-import 'blocs/auth/auth_bloc.dart';
-import 'package:drinkup_app/repistories/storage.dart';
-import 'repistories/router.dart';
-import 'repistories/user.dart';
-import 'package:drinkup_app/screens/error/error_screen.dart';
-import 'package:drinkup_app/screens/settings/settings.dart';
-import 'package:drinkup_app/screens/profile/profile.dart';
-import 'package:drinkup_app/screens/progress/progress.dart';
-import 'package:drinkup_app/screens/custom_styles/routes.dart';
+import 'package:drinkup_app/services/water_data/water_data_service.dart';
+import 'models/router/router_model.dart';
+import 'package:flutter/gestures.dart';
+import 'package:drinkup_app/blocs/water_progress/water_progress.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:drinkup_app/constants/constants.dart';
+import 'package:flutter/services.dart';
+import 'package:drinkup_app/models/config/config_model.dart';
+import 'package:go_router/go_router.dart';
+import 'repositories/user/user_repository.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:drinkup_app/repositories/config/config_repository.dart';
 
 class SimpleBlocObserver extends BlocObserver {
   @override
@@ -44,168 +48,94 @@ class SimpleBlocObserver extends BlocObserver {
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDisplayMode.setHighRefreshRate();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await Storage.initStorage();
+  developerLog("SUCCESS: WidgetsBinding initialized");
+  GestureBinding.instance.resamplingEnabled = true;
+
+  /* FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding); */
+  final ConfigRepository configRepository = await ConfigRepository.init();
+  developerLog("SUCCESS: ConfigRepository initialized");
+  final DataRepository dataRepository = await DataRepository.init();
+  developerLog("SUCCESS: DataRepository initialized");
+  final UserRepository userRepistory = UserRepository();
+  developerLog("SUCCESS: UserRepository created");
+  /*  await Hive.initFlutter(ConfigRepository.appDataDir);
+  await Hive.deleteBoxFromDisk("latest-units",
+      path: ConfigRepository.appDataDir);
+  await Hive.deleteBoxFromDisk("latest-data",
+      path: ConfigRepository.appDataDir);
+  await Hive.deleteBoxFromDisk("data-logs", path: ConfigRepository.appDataDir);
+
+  return; */
+
+  ConfigService configService =
+      ConfigService(configRepository: configRepository);
+  developerLog("SUCCESS: ConfigService created");
+  AuthenticationBloc authBloc =
+      AuthenticationBloc(userRepository: userRepistory)
+        ..add(AuthenticationStart());
+
+  developerLog("SUCCESS: AuthenticationBloc created");
+
+  final WaterDataService waterDataService =
+      WaterDataService(dataRepository: dataRepository);
+
   Bloc.observer = SimpleBlocObserver();
-  final finalUserRepository = UserRepository();
+
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
   runApp(MultiRepositoryProvider(
-      providers: [RepositoryProvider(create: (context) => finalUserRepository)],
+      providers: [
+        RepositoryProvider(create: (context) => dataRepository),
+        RepositoryProvider(create: (context) => waterDataService),
+        RepositoryProvider(create: (context) => userRepistory),
+        /* RepositoryProvider(create: (context) => config) */
+      ],
       child: MultiBlocProvider(providers: [
-        BlocProvider<AuthenticationBloc>(
+        BlocProvider<ConfigBloc>(
             create: (BuildContext context) =>
-                AuthenticationBloc(userRepository: finalUserRepository)
-                  ..add(AppStarted())),
+                ConfigBloc(configService: configService)..add(ConfigStarted())),
+        BlocProvider<UserBloc>(
+            create: (BuildContext context) =>
+                UserBloc(userRepository: userRepistory)),
+        BlocProvider<AuthenticationBloc>(
+            create: (BuildContext context) => authBloc),
+        BlocProvider<WaterProgressBloc>(
+          create: (context) =>
+              WaterProgressBloc(waterDataService: waterDataService)
+                ..add(WaterProgressStarted()),
+        ),
         BlocProvider<NetworkBloc>(
             create: (BuildContext context) => NetworkBloc())
-      ], child: MyApp(/* userRepository: finalUserRepository */))));
+      ], child: const MyApp())));
 }
 
 class MyApp extends StatelessWidget {
-  //late final UserRepository userRepository;
-
-  //MyApp({required this.userRepository});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    //userRepository = RepositoryProvider.of<UserRepository>(context);
+    developerLog("STATUS: MyApp build started");
+
     final GoRouter myRouter = AppRouter.initRouter(context);
-    return AuthStreamScope(
-      authBloc: BlocProvider.of<AuthenticationBloc>(context),
-      userRepository: RepositoryProvider.of<UserRepository>(context),
-      child: MaterialApp.router(routerConfig: myRouter),
-    );
+    developerLog("SUCCESS: GoRouter initialized");
+
+    return LayoutBuilder(builder: (context, constraints) {
+      SizeService().load(
+          logicalWidth: MediaQuery.of(context).size.width,
+          logicalHeight: MediaQuery.of(context).size.height);
+      developerLog("SUCCESS: SizeService loaded");
+      return AuthStreamScope(
+        authBloc: BlocProvider.of<AuthenticationBloc>(context),
+        child: MaterialApp.router(
+
+            /* checkerboardRasterCacheImages: true, */
+            /* checkerboardOffscreenLayers: true, */
+            /* showPerformanceOverlay: true, */
+            debugShowCheckedModeBanner: false,
+            routerConfig: myRouter),
+      );
+    });
   }
 }
-
-
-
-  //@override
-  //Widget build(BuildContext context) {
-  //  return MaterialApp(
-  //    debugShowCheckedModeBanner: false,
-  //    locale: const Locale('mn', 'MN'),
-  //    theme: ThemeData(
-  //      fontFamily: 'Rubik',
-  //      primarySwatch: Colors.blueGrey,
-  //    ),
-  //    home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-  //      builder: (context, state) {
-  //        if (state is AuthenticationAuthenticated) {
-  //          return MainScreen();
-  //        }
-  //        if (state is AuthenticationUnauthenticated) {
-  //          return LoginPage(userRepistory: userRepository);
-  //        }
-  //        if (state is AuthenticationLoading) {
-  //          return Scaffold(
-  //            body: Container(
-  //              color: Colors.white,
-  //              width: MediaQuery.of(context).size.width,
-  //              child: Column(
-  //                crossAxisAlignment: CrossAxisAlignment.center,
-  //                mainAxisAlignment: MainAxisAlignment.center,
-  //                children: <Widget>[
-  //                  SizedBox(
-  //                    height: 25.0,
-  //                    width: 25.0,
-  //                    child: CircularProgressIndicator(
-  //                      valueColor:
-  //                          new AlwaysStoppedAnimation<Color>(Colors.white),
-  //                      strokeWidth: 4.0,
-  //                    ),
-  //                  )
-  //                ],
-  //              ),
-  //            ),
-  //          );
-  //        }
-  //        return Scaffold(
-  //          body: Container(
-  //            color: Colors.white,
-  //            width: MediaQuery.of(context).size.width,
-  //            child: Column(
-  //              crossAxisAlignment: CrossAxisAlignment.center,
-  //              mainAxisAlignment: MainAxisAlignment.center,
-  //              children: <Widget>[
-  //                SizedBox(
-  //                  height: 25.0,
-  //                  width: 25.0,
-  //                  child: CircularProgressIndicator(
-  //                    valueColor:
-  //                        new AlwaysStoppedAnimation<Color>(Colors.white),
-  //                    strokeWidth: 4.0,
-  //                  ),
-  //                )
-  //              ],
-  //            ),
-  //          ),
-  //        );
-  //      },
-  //    ),
-  //  );
-  //}
-
-
-/*
-
-import 'package:flutter/material.dart';
-import 'login/login_page.dart';
-import 'package:go_router/go_router.dart';
-import 'screens/error/error_screen.dart';
-import 'screens/menu/main_menu.dart';
-import 'screens/settings/settings.dart';
-import 'screens/profile/game.dart';
-import 'utils/router_names.dart';
-
-void main() {
-  runApp(MainApp());
-}
-
-class MainApp extends StatelessWidget {
-  MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Our Go Router App',
-      routerConfig: _router,
-    );
-  }
-
-  // in default inital location is '/'
-  // but can change the initial location with initialLocation: in GoRouter
-  final GoRouter _router = GoRouter(
-      errorBuilder: (context, state) => const ErrorScreen(),
-      // redirect: (context, state) {
-      //   if (isLoggedIn) {
-      //     return "/menu";
-      //   } else {
-      //     return "/";
-      //   }
-      // },
-      routes: [
-        GoRoute(
-            name: RouteNames.login,
-            path: '/',
-            builder: (context, state) => const LoginPage(),
-            routes: [
-              GoRoute(
-                  name: RouteNames.menu,
-                  path: 'menu',
-                  builder: (context, state) => const MainMenu()),
-              GoRoute(
-                  name: RouteNames.settings,
-                  path: 'settings',
-                  builder: (context, state) => const SettingsScreen()),
-              GoRoute(
-                  name: RouteNames.profile,
-                  path: 'profile/:username',
-                  builder: (context, state) => Profile(
-                      username: state.pathParameters["username"]!)),
-            ]),
-      ]);
-}
-
-*/
-

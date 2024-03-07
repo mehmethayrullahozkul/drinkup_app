@@ -22,10 +22,19 @@ dependencies:
   flutter_bloc: ^8.1.3
   connectivity_plus: ^5.0.2
   internet_connection_checker: ^1.0.0+1
-  shared_preferences: ^2.2.2
   flutter_native_splash: ^2.3.9
   flutter_displaymode: ^0.6.0
-  rename: ^3.0.1
+  animated_bottom_navigation_bar: ^1.3.2
+  ionicons: ^0.2.2
+  flutter_svg: ^2.0.9
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  hive_generator: ^2.0.1
+  path_provider: ^2.1.2
+  syncfusion_flutter_charts: ^24.2.4+3
+  flutter_lazy_indexed_stack: ^0.0.6
+  carousel_slider: ^4.2.1
+  fl_chart: ^0.66.2
 
 flutter_native_splash:
   background_image: "assets/images/splash-water-001.png"
@@ -36,10 +45,25 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
+  build_runner: ^2.1.4
 
 flutter:
   uses-material-design: true
   fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/roboto-regular.ttf
+          weight: 400
+        - asset: assets/fonts/roboto-medium.ttf
+          weight: 500
+        - asset: assets/fonts/roboto-bold.ttf
+          weight: 700
+        - asset: assets/fonts/roboto-black.ttf
+          weight: 900
+        - asset: assets/fonts/roboto-light.ttf
+          weight: 300
+        - asset: assets/fonts/roboto-thin.ttf
+          weight: 100
     - family: Sofia-Pro
       fonts:
         - asset: assets/fonts/sofia-pro-ultralight.otf
@@ -56,5 +80,110 @@ flutter:
           weight: 700
         - asset: assets/fonts/sofia-pro-black.otf
           weight: 900
+    - family: Nexa
+      fonts:
+        - asset: assets/fonts/nexa-light.otf
+          weight: 300
+        - asset: assets/fonts/nexa-regular.otf
+          weight: 400
+        - asset: assets/fonts/nexa-semibold.otf
+          weight: 600
+        - asset: assets/fonts/nexa-bold.otf
+          weight: 700
+        - asset: assets/fonts/nexa-black.ttf
+          weight: 900
+    - family: Amfibia
+      fonts:
+        - asset: assets/fonts/amfibia-regular.ttf
+          weight: 400
+        - asset: assets/fonts/amfibia-bold.ttf
+          weight: 700
+        - asset: assets/fonts/amfibia-black.ttf
+          weight: 900
+        - asset: assets/fonts/amfibia-light.ttf
+          weight: 300
+        - asset: assets/fonts/amfibia-superthin.ttf
+          weight: 100
+        - asset: assets/fonts/amfibia-thin.ttf
+          weight: 200
+        - asset: assets/fonts/amfibia-semibold.ttf
+          weight: 600
+        - asset: assets/fonts/amfibia-extrabold.ttf
+          weight: 800
+    - family: Gotham
+      fonts:
+        - asset: assets/fonts/gotham-book.ttf
+          weight: 400
+        - asset: assets/fonts/gotham-medium.ttf
+          weight: 500
+        - asset: assets/fonts/gotham-bold.otf
+          weight: 700
+        - asset: assets/fonts/gotham-black.otf
+          weight: 900
+        - asset: assets/fonts/gotham-light.otf
+          weight: 300
+        - asset: assets/fonts/gotham-thin.otf
+          weight: 100
+        - asset: assets/fonts/gotham-xlight.otf
+          weight: 200
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/montserrat-regular.ttf
+          weight: 400
+        - asset: assets/fonts/montserrat-medium.ttf
+          weight: 500
+        - asset: assets/fonts/montserrat-bold.ttf
+          weight: 700
+        - asset: assets/fonts/montserrat-black.ttf
+          weight: 900
+        - asset: assets/fonts/montserrat-light.ttf
+          weight: 300
+        - asset: assets/fonts/montserrat-thin.ttf
+          weight: 100
+        - asset: assets/fonts/montserrat-extrabold.ttf
+          weight: 800
+        - asset: assets/fonts/montserrat-semibold.ttf
+          weight: 600
+        - asset: assets/fonts/montserrat-extralight.ttf
+          weight: 200
+    - family: Brandon-Grotesque
+      fonts:
+        - asset: assets/fonts/brandon-grotesque-regular.otf
+          weight: 400
+        - asset: assets/fonts/brandon-grotesque-medium.otf
+          weight: 500
+        - asset: assets/fonts/brandon-grotesque-bold.otf
+          weight: 700
+        - asset: assets/fonts/brandon-grotesque-black.otf
+          weight: 900
+        - asset: assets/fonts/brandon-grotesque-light.otf
+          weight: 300
+        - asset: assets/fonts/brandon-grotesque-thin.otf
+          weight: 100
+    - family: Zuume-Soft
+      fonts:
+        - asset: assets/fonts/zuume-soft-regular.ttf
+          weight: 400
+        - asset: assets/fonts/zuume-soft-black.ttf
+          weight: 900
+        - asset: assets/fonts/zuume-soft-light.ttf
+          weight: 300
+        - asset: assets/fonts/zuume-soft-bold.ttf
+          weight: 700
+        - asset: assets/fonts/zuume-soft-extrabold.ttf
+          weight: 800
+        - asset: assets/fonts/zuume-soft-medium.ttf
+          weight: 500
+        - asset: assets/fonts/zuume-soft-semibold.ttf
+          weight: 600
+        - asset: assets/fonts/zuume-soft-extralight.ttf
+          weight: 200
+    - family: Aquilone
+      fonts:
+        - asset: assets/fonts/aquilone-regular.otf
   assets:
     - assets/images/
+    - assets/images/blue-bg/
+    - assets/images/white-bg/
+    - assets/images/water-bottles/
+    - assets/images/profile-pictures/
